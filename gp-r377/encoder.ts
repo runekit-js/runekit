@@ -1,3 +1,5 @@
 export function PacketEncoder(session: unknown) {
-    return {}
+    return {
+        async encode(data: unknown) {}
+    }
 }

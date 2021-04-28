@@ -32,6 +32,6 @@ player2.setId(1)
 player2.setName('tim')
 
 const gamepack = await import('../gp-r377/mod.ts')
-const gameserver = await server(gamepack, world)
+const gameserver = server(gamepack, world)
 
 await gameserver.start()

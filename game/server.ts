@@ -1,30 +1,35 @@
 import { createSession } from '../lib/mod.ts'
+import type { Session, Gamepack } from '../lib/mod.ts'
 import { handleSession } from './network.ts'
     
-const sessions = []
+const sessions: Session[] = []
 
-interface Gamepack {
-    LoginDecoder: (session: unknown) => Promise<void>
-    PacketEncoder: (session: unknown) => Record<string, unknown>
-}
+export function server(gamepack: Gamepack.Module, world: unknown) {
 
-export async function server(gamepack: Gamepack, world: unknown) {
-
-    console.log({ gamepack })
+    console.log({ gamepack, world })
 
     return {
         start: async () => {
-            const listener = Deno.listen({ port: 43594 })
+            const listener = Deno.listen({ port: 43594, hostname: '0.0.0.0' })
 
             console.log(`Listening @ localhost:43594`)
 
             // connection listener
             for await (const conn of listener) {
                 // TODO: handle connections.
-                const session = createSession(conn).assign(gamepack.LoginDecoder)
+                const session = createSession(conn)
+                    .assignDecoder(gamepack.LoginDecoder)
+                    .assignEncoder(gamepack.PacketEncoder)
+
                 sessions.push(session)
             
-                // await handleSession(session)
+                try {
+                    await handleSession(session)
+                } catch (err) {
+                    // closed connection
+                    const index = sessions.indexOf(session)
+                    sessions.splice(index, 1)
+                }
             }
         }
     }

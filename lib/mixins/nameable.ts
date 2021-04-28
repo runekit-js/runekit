@@ -1,8 +1,4 @@
-function mixin<P, T = Record<string, unknown>>(props: (o?: T) => P) {
-    return function(o: T): P & T {
-        return Object.assign({}, o, props(o))
-    }
-}
+import { mixin } from '../mixin.ts'
 
 interface NameableObject {
     name: () => string;
